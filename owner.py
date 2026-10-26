@@ -77,7 +77,6 @@ async def stats(cb: CallbackQuery):
         f"Pending payments: {await g('payments', 'WHERE status=\'pending\'')}\n"
         f"Revenue (approved): ₹{rev}\n"
         f"☁️ Mongo backup: {esc(mongo_sync.status_text())}"
-    )
     await ui.edit(cb, text, reply_markup=kb_back())
     await cb.answer()
 
