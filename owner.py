@@ -64,7 +64,7 @@ async def stats(cb: CallbackQuery):
     g = db.count_rows
     rev = (await db.fetchone("SELECT COALESCE(SUM(amount),0) AS s FROM payments WHERE status='approved'"))["s"]
     bonus = (await db.fetchone("SELECT COALESCE(SUM(amount),0) AS s FROM bonus_votes"))["s"]
-    text = 
+    text = (
         "📊 <b>Stats</b>\n\n"
         f"Users: {await g('users')}\n"
         f"Premium users: {await g('users', 'WHERE plan!=\'free\'')}\n"
@@ -76,7 +76,8 @@ async def stats(cb: CallbackQuery):
         f"Paid votes (net): {bonus}\n"
         f"Pending payments: {await g('payments', 'WHERE status=\'pending\'')}\n"
         f"Revenue (approved): ₹{rev}\n"
-        f"☁️ Mongo backup: {esc(mongo_sync.status_text())}"
+        f"☁️ Mongo backup: {esc(mongo_sync.status_text())}")
+    
     await ui.edit(cb, text, reply_markup=kb_back())
     await cb.answer()
 
