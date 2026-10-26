@@ -64,24 +64,35 @@ async def stats(cb: CallbackQuery):
     g = db.count_rows
     rev = (await db.fetchone("SELECT COALESCE(SUM(amount),0) AS s FROM payments WHERE status='approved'"))["s"]
     bonus = (await db.fetchone("SELECT COALESCE(SUM(amount),0) AS s FROM bonus_votes"))["s"]
+
+    users = await g("users")
+    premium_users = await g("users", "WHERE plan!='free'")
+    banned = await g("users", "WHERE banned=1")
+    channels = await g("channels")
+    participants = await g("participants")
+    contests = await g("contests")
+    active_contests = await g("contests", "WHERE status='active'")
+    votes = await g("votes")
+    pending_pay = await g("payments", "WHERE status='pending'")
+    backup = esc(mongo_sync.status_text())
+
     text = (
         "📊 <b>Stats</b>\n\n"
-        f"Users: {await g('users')}\n"
-        f"Premium users: {await g('users', 'WHERE plan!=\'free\'')}\n"
-        f"Banned: {await g('users', 'WHERE banned=1')}\n"
-        f"Channels: {await g('channels')}\n"
-        f"Participants: {await g('participants')}\n"
-        f"Contests: {await g('contests')} (active {await g('contests', 'WHERE status=\'active\'')})\n"
-        f"Real votes: {await g('votes')}\n"
+        f"Users: {users}\n"
+        f"Premium users: {premium_users}\n"
+        f"Banned: {banned}\n"
+        f"Channels: {channels}\n"
+        f"Participants: {participants}\n"
+        f"Contests: {contests} (active {active_contests})\n"
+        f"Real votes: {votes}\n"
         f"Paid votes (net): {bonus}\n"
-        f"Pending payments: {await g('payments', 'WHERE status=\'pending\'')}\n"
+        f"Pending payments: {pending_pay}\n"
         f"Revenue (approved): ₹{rev}\n"
-        f"☁️ Mongo backup: {esc(mongo_sync.status_text())}"
-        )
-    
+        f"☁️ Mongo backup: {backup}"
+    )
+
     await ui.edit(cb, text, reply_markup=kb_back())
     await cb.answer()
-
 
 @router.callback_query(F.data == "pp")
 async def pending(cb: CallbackQuery, bot: Bot):
