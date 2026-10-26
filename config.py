@@ -1,5 +1,4 @@
 import os
-import owner
 
 BOT_NAME = "Vote Pro X"
 BOT_TOKEN = os.getenv("BOT_TOKEN", "")
